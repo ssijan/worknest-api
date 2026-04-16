@@ -7,7 +7,9 @@ from rest_framework.response import Response
 from .models import Project
 from .serializers import ProjectSerializer, ProjectUpdateSerializer
 from companies.models import Company, Membership
-from core.permissions import IsCompanyAdmin, IsMember
+from core.permissions import IsMember
+from .filters import ProjectFilter
+from core.pagination import StandardPagination
 
 # Create your views here.
 
@@ -28,8 +30,30 @@ def project_list(request, company_id):
 
     if request.method == 'GET':
         projects = Project.objects.filter(company=company).select_related('created_by')
-        serializer = ProjectSerializer(projects, many=True)
-        return Response(serializer.data)
+
+        # Apply filters
+        project_filter = ProjectFilter(request.GET, queryset=projects)
+        projects = project_filter.qs
+
+        # Apply search
+        search = request.GET.get('search')
+        if search:
+            projects = projects.filter(name__icontains=search)
+
+        # Apply ordering
+        ordering = request.GET.get('ordering')
+        allowable_ordering_fields = [
+            'created_at', '-created_at',
+            'name', '-name',
+        ]
+        if ordering in allowable_ordering_fields:
+            projects = projects.order_by(ordering)
+
+        # Apply pagination
+        paginator = StandardPagination()
+        paginated_projects = paginator.paginate_queryset(projects, request)
+        serializer = ProjectSerializer(paginated_projects, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
     elif request.method == 'POST':
         serializer = ProjectSerializer(data=request.data)
@@ -63,11 +87,11 @@ def project_detail(request, company_id, project_id):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'DELETE':
-        membership = Membership.objects.get(
+        membership = Membership.objects.filter(
             user=request.user,
             company=company
-        )
-        if membership.role != Membership.Role.ADMIN:
+        ).first()
+        if not membership or membership.role != Membership.Role.ADMIN:
             return Response(
                 {'error': 'Only admins can delete projects'},
                 status=status.HTTP_403_FORBIDDEN
@@ -75,5 +99,5 @@ def project_detail(request, company_id, project_id):
         project.delete()
         return Response(
             {'message': 'Project deleted successfully'},
-            status=status.HTTP_204_NO_CONTENT
+            status=status.HTTP_200_OK
         )

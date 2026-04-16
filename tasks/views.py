@@ -4,11 +4,14 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+
 from .models import Task
 from .serializers import TaskSerializer, TaskStatusSerializer
 from core.permissions import IsCompanyAdmin, IsMember
 from companies.models import Membership
 from projects.models import Project
+from .filters import TaskFilter
+from core.pagination import StandardPagination
 
 # Create your views here.
 
@@ -33,9 +36,32 @@ def task_list_create(request, company_id, project_id):
         return Response({'error': 'Project not found.'}, status=status.HTTP_404_NOT_FOUND)
     
     if request.method == 'GET':
-        task = Task.objects.filter(project=project).select_related('assigned_to', 'created_by')
-        serializer = TaskSerializer(task, many=True)
-        return Response(serializer.data)
+        tasks = Task.objects.filter(project=project).select_related('assigned_to', 'created_by')
+
+        # Apply filters
+        task_filter = TaskFilter(request.GET, queryset=tasks)
+        tasks = task_filter.qs
+
+        # Apply search
+        search = request.GET.get('search')
+        if search:
+            tasks = tasks.filter(title__icontains=search)           
+
+        # Apply ordering
+        ordering = request.GET.get('ordering')
+        allowable_ordering_fields = [
+            'created_at', '-created_at',
+            'due_date', '-due_date',
+            'priority', '-priority',
+        ]
+        if ordering in allowable_ordering_fields:
+            tasks = tasks.order_by(ordering)
+
+        # Apply pagination
+        paginator = StandardPagination()
+        paginated_tasks = paginator.paginate_queryset(tasks, request)
+        serializer = TaskSerializer(paginated_tasks, many=True)
+        return paginator.get_paginated_response(serializer.data)
     
     elif request.method == 'POST':
         serializer = TaskSerializer(
@@ -84,7 +110,7 @@ def task_detail(request, company_id, project_id, task_id):
         if not is_member:
             return Response({'error': 'Only company admins can delete tasks.'}, status=status.HTTP_403_FORBIDDEN)
         task.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({'message': 'Task deleted successfully.'}, status=status.HTTP_200_OK)
     
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated, IsMember])
