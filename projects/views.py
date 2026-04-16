@@ -10,6 +10,8 @@ from companies.models import Company, Membership
 from core.permissions import IsMember
 from .filters import ProjectFilter
 from core.pagination import StandardPagination
+from core.models import ActivityLog
+from core.activity import log_activity
 
 # Create your views here.
 
@@ -57,10 +59,22 @@ def project_list(request, company_id):
 
     elif request.method == 'POST':
         serializer = ProjectSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(company=company, created_by=request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        
+        project = serializer.save(company=company, created_by=request.user)
+        log_activity(
+            company=company,
+            actor=request.user,
+            action=ActivityLog.Action.PROJECT_CREATED,
+            description=f"{request.user.name} created project '{project.name}'",
+            extra_data={
+                'project_id': project.id,
+                'project_name': project.name
+            }
+        )
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
     
 
 @api_view(['GET', 'PATCH', 'DELETE'])
