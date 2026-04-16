@@ -3,6 +3,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from drf_spectacular.utils import extend_schema
 
 from .models import Project
 from .serializers import ProjectSerializer, ProjectUpdateSerializer
@@ -23,6 +24,7 @@ def get_company_or_404(company_id):
         return None
     
 
+@extend_schema(tags=['Projects'])
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated, IsMember])
 def project_list(request, company_id):
@@ -60,7 +62,7 @@ def project_list(request, company_id):
     elif request.method == 'POST':
         serializer = ProjectSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        
+
         project = serializer.save(company=company, created_by=request.user)
         log_activity(
             company=company,
@@ -77,6 +79,7 @@ def project_list(request, company_id):
 
     
 
+@extend_schema(tags=['Projects'])
 @api_view(['GET', 'PATCH', 'DELETE'])
 @permission_classes([IsAuthenticated, IsMember])
 def project_detail(request, company_id, project_id):

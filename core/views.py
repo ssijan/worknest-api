@@ -2,6 +2,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
+from drf_spectacular.utils import extend_schema
 
 from .models import ActivityLog
 from .serializers import ActivityLogSerializer
@@ -13,6 +14,7 @@ from projects.models import Project
 
 # Create your views here.
 
+@extend_schema(tags=['Activity'])
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, IsMember])
 def company_activity(request, company_id):
@@ -28,6 +30,7 @@ def company_activity(request, company_id):
     return paginator.get_paginated_response(serializer.data)
 
 
+@extend_schema(tags=['Activity'])
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, IsMember])
 def project_activity(request, company_id, project_id):

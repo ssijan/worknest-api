@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from .models import Company, Membership
 from .serializers import CompanySerializer, MemberSerializer, AddMemberSerializer
 from django.contrib.auth import get_user_model
+from drf_spectacular.utils import extend_schema
 
 from core.permissions import IsMember, IsCompanyAdmin
 
@@ -25,6 +26,7 @@ def get_user_company(user, company_id):
 
 
 # Endpoint to list companies the user is a member of and create new companies
+@extend_schema(tags=['Companies'], request=CompanySerializer)
 @api_view(['GET','POST'])
 @permission_classes([IsAuthenticated])
 def company_list_create(request):
@@ -43,6 +45,8 @@ def company_list_create(request):
     
 
 # Endpoint to get company details (only for members)
+
+@extend_schema(tags=['Companies'])
 @api_view(['GET', 'DELETE'])
 @permission_classes([IsAuthenticated, IsMember])
 def company_detail(request, company_id):
@@ -67,6 +71,7 @@ def company_detail(request, company_id):
 
 
 # Endpoint to list members of a company and add new members (admin only)
+@extend_schema(tags=['Companies'])
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated, IsMember])
 def member_list_add(request, company_id):

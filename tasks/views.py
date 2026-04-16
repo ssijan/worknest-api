@@ -3,6 +3,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from drf_spectacular.utils import extend_schema
 
 
 from .models import Task
@@ -31,6 +32,7 @@ def get_task_or_404(project, task_id):
         return None
 
 
+@extend_schema(tags=['Tasks'])
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated, IsMember])
 def task_list_create(request, company_id, project_id):
@@ -92,7 +94,7 @@ def task_list_create(request, company_id, project_id):
 
     
 
-
+@extend_schema(tags=['Tasks'])
 @api_view(['GET', 'PATCH', 'DELETE'])
 @permission_classes([IsAuthenticated, IsMember])
 def task_detail(request, company_id, project_id, task_id):
@@ -175,6 +177,9 @@ def task_detail(request, company_id, project_id, task_id):
 
         return Response({'message': 'Task deleted successfully.'}, status=status.HTTP_200_OK)
     
+
+
+@extend_schema(tags=['Tasks'])
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated, IsMember])
 def task_status_update(request, company_id, project_id, task_id):
