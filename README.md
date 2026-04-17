@@ -150,4 +150,4 @@ DB_PORT=5432
 | core_activitylog | Audit log of all actions |
 
 ## Author
-Your Name — Md. Sakibur Rahman
+Md. Sakibur Rahman
