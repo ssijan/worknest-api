@@ -22,6 +22,11 @@ def health_check(request):
     })
 
 urlpatterns = [
+    # API Documentation
+    path('api/docs/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/docs/',SpectacularSwaggerView.as_view(url_name='schema'),name='swagger-ui'),
+    path('api/docs/redoc/', SpectacularRedocView.as_view(url_name='schema'),name='redoc'),
+
     path('admin/', admin.site.urls),
     path('api/health/', health_check),
     path('api/auth/', include('accounts.urls')),
@@ -30,10 +35,6 @@ urlpatterns = [
     path('api/companies/<int:company_id>/projects/<int:project_id>/tasks/', include('tasks.urls')),
     path('api/', include('core.urls')),
 
-    # API schema and docs
-    # API Documentation
-    path('api/docs/schema/', SpectacularAPIView.as_view(), name='schema'),
-    path('api/docs/',SpectacularSwaggerView.as_view(url_name='schema'),name='swagger-ui'),
-    path('api/docs/redoc/', SpectacularRedocView.as_view(url_name='schema'),name='redoc'),
+
 
 ]
