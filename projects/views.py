@@ -24,7 +24,7 @@ def get_company_or_404(company_id):
         return None
     
 
-@extend_schema(tags=['Projects'])
+@extend_schema(tags=['Projects'], request=ProjectSerializer)
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated, IsMember])
 def project_list(request, company_id):
@@ -79,7 +79,7 @@ def project_list(request, company_id):
 
     
 
-@extend_schema(tags=['Projects'])
+@extend_schema(tags=['Projects'], request=ProjectUpdateSerializer)
 @api_view(['GET', 'PATCH', 'DELETE'])
 @permission_classes([IsAuthenticated, IsMember])
 def project_detail(request, company_id, project_id):

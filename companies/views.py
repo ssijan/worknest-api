@@ -15,7 +15,6 @@ from core.permissions import IsMember, IsCompanyAdmin
 User = get_user_model()
 
 
-# Helper function to get a company and membership for a user
 def get_user_company(user, company_id):
     try:
         company = Company.objects.get(id=company_id)
@@ -25,7 +24,7 @@ def get_user_company(user, company_id):
         return None, None
 
 
-# Endpoint to list companies the user is a member of and create new companies
+
 @extend_schema(tags=['Companies'], request=CompanySerializer)
 @api_view(['GET','POST'])
 @permission_classes([IsAuthenticated])
@@ -44,8 +43,8 @@ def company_list_create(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
-# Endpoint to get company details (only for members)
 
+# Endpoint to get company details (only for members)
 @extend_schema(tags=['Companies'])
 @api_view(['GET', 'DELETE'])
 @permission_classes([IsAuthenticated, IsMember])
@@ -71,7 +70,7 @@ def company_detail(request, company_id):
 
 
 # Endpoint to list members of a company and add new members (admin only)
-@extend_schema(tags=['Companies'])
+@extend_schema(tags=['Companies'], request=AddMemberSerializer)
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated, IsMember])
 def member_list_add(request, company_id):

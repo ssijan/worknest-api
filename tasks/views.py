@@ -32,7 +32,7 @@ def get_task_or_404(project, task_id):
         return None
 
 
-@extend_schema(tags=['Tasks'])
+@extend_schema(tags=['Tasks'], request=TaskSerializer)
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated, IsMember])
 def task_list_create(request, company_id, project_id):
@@ -94,7 +94,7 @@ def task_list_create(request, company_id, project_id):
 
     
 
-@extend_schema(tags=['Tasks'])
+@extend_schema(tags=['Tasks'], request=TaskSerializer)
 @api_view(['GET', 'PATCH', 'DELETE'])
 @permission_classes([IsAuthenticated, IsMember])
 def task_detail(request, company_id, project_id, task_id):
@@ -179,7 +179,7 @@ def task_detail(request, company_id, project_id, task_id):
     
 
 
-@extend_schema(tags=['Tasks'])
+@extend_schema(tags=['Tasks'], request=TaskStatusSerializer)
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated, IsMember])
 def task_status_update(request, company_id, project_id, task_id):
