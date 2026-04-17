@@ -3,7 +3,7 @@
 A production-ready multi-tenant SaaS task management REST API built with Django REST Framework.
 
 ## Live Demo
-- **API Base URL:** https://worknest-api-e7mg.onrender.com/api/
+- **API Base URL:** https://worknest-api-e7mg.onrender.com/api/health/
 - **Swagger Docs:** https://worknest-api-e7mg.onrender.com/api/docs/
 - **ReDoc:** https://worknest-api-e7mg.onrender.com/api/docs/redoc/
 
