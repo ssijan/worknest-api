@@ -3,7 +3,7 @@ from django.urls import path, include
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 from drf_spectacular.utils import extend_schema
 
 
@@ -31,8 +31,9 @@ urlpatterns = [
     path('api/', include('core.urls')),
 
     # API schema and docs
+    # API Documentation
     path('api/docs/schema/', SpectacularAPIView.as_view(), name='schema'),
-    path('api/docs/', SpectacularSwaggerView.as_view(), name='swagger'),
-    path('api/docs/redoc/', SpectacularSwaggerView.as_view(url_name='schema'), name='redoc'),
+    path('api/docs/',SpectacularSwaggerView.as_view(url_name='schema'),name='swagger-ui'),
+    path('api/docs/redoc/', SpectacularRedocView.as_view(url_name='schema'),name='redoc'),
 
 ]
